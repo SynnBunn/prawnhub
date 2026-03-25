@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prawnhub - The Best Crustacean Videos</title>
+    <style>
+        /* Base Styles & Reset */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Header & Navigation */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 25px;
+            background-color: #111;
+            border-bottom: 1px solid #222;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            letter-spacing: -1px;
+            cursor: pointer;
+        }
+
+        .logo-prawn { color: #fff; }
+        .logo-hub {
+            background-color: #ffa31a;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 3px;
+        }
+
+        .search-container {
+            flex-grow: 1;
+            max-width: 800px; /* Wider search bar */
+            margin: 0 20px;
+            display: flex;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .search-container input:focus {
+            outline: none;
+            background: #333;
+        }
+
+        .search-container button {
+            padding: 0 20px;
+            border: none;
+            background: #ffa31a;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .search-container button:hover { background: #e69217; }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .upload-btn {
+            background: #2a2a2a;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .upload-btn:hover { background: #333; }
+
+        /* Main Content Container - Now Full Width */
+        .container {
+            padding: 20px 25px;
+            width: 100%; /* Fills the window */
+            margin: 0 auto;
+        }
+
+        /* Categories / Tags */
+        .categories {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        /* Hide scrollbar for categories but keep functionality */
+        .categories::-webkit-scrollbar { height: 6px; }
+        .categories::-webkit-scrollbar-track { background: #111; }
+        .categories::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+        .category {
+            background: #1a1a1a;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            border: 1px solid #333;
+            transition: all 0.2s;
+        }
+
+        .category:hover { background: #2a2a2a; }
+        .category.active { background: #ffa31a; color: #000; border-color: #ffa31a; font-weight: bold; }
+
+        /* Video Grid Layout - Expanded */
+        .video-grid {
+            display: grid;
+            /* Min width increased slightly so they don't look too tiny on massive screens */
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            row-gap: 30px;
+        }
+
+        .video-card {
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .thumbnail {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #1a1a1a;
+            border-radius: 4px;
+            position: relative;
+            transition: outline 0.1s;
+            overflow: hidden;
+            outline: 2px solid transparent;
+        }
+        
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        
+        .video-card:hover .thumbnail {
+            outline: 2px solid #ffa31a;
+        }
+
+        .video-card:hover .thumbnail img {
+            transform: scale(1.05); /* Slight zoom effect on hover */
+        }
+
+        .duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.85);
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .video-info {
+            padding: 12px 0;
+            display: flex;
+            gap: 12px;
+        }
+
+        .video-text {
+            flex-grow: 1;
+        }
+
+        .video-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0 0 6px 0;
+            color: #eee;
+            line-height: 1.3;
+        }
+
+        .video-card:hover .video-title { color: #ffa31a; }
+
+        .video-meta {
+            font-size: 13px;
+            color: #888;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        /* Load More Button */
+        .load-more-container {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0 20px 0;
+        }
+
+        .load-more-btn {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .load-more-btn:hover {
+            background: #ffa31a;
+            color: #000;
+            border-color: #ffa31a;
+        }
+
+        /* Footer */
+        footer {
+            background: #111;
+            border-top: 1px solid #222;
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .footer-links a:hover {
+            color: #ffa31a;
+        }
+
+        .copyright {
+            color: #555;
+            font-size: 12px;
+        }
+        
+        .verified { color: #ffa31a; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <span class="logo-prawn">Prawn</span><span class="logo-hub">hub</span>
+        </div>
+        <div class="search-container">
+            <input type="text" placeholder="Search crustaceans, shrimp, mantis...">
+            <button>🔍</button>
+        </div>
+        <div class="header-actions">
+            <button class="upload-btn">Upload</button>
+            <div style="width: 35px; height: 35px; background: #333; border-radius: 50%; overflow: hidden;">
+                <img src="https://loremflickr.com/100/100/ocean?random=99" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="categories">
+            <div class="category active">Recommended</div>
+            <div class="category">Freshwater</div>
+            <div class="category">Saltwater</div>
+            <div class="category">Mantis</div>
+            <div class="category">Amateur Molting</div>
+            <div class="category">Step-Prawn</div>
+            <div class="category">Filter Feeders</div>
+            <div class="category">Cherry Shrimp</div>
+            <div class="category">Hard Shell</div>
+            <div class="category">Soft Shell</div>
+            <div class="category">Live Feeding</div>
+            <div class="category">Algae Grazing</div>
+        </div>
+
+        <h2 style="font-size: 22px; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 20px;">Hot Prawns In Your Area</h2>
+
+        <div class="video-grid">
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/prawn?random=1" alt="Shrimp Thumbnail">
+                    <span class="duration">10:42</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Step-prawn gets stuck in the aquarium filter</h3>
+                        <div class="video-meta">
+                            <span><span class="verified">ShrimpHub Exclusive</span></span>
+                            <span>1.2M views • 2 days ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/shrimp?random=2" alt="Shrimp Thumbnail">
+                    <span class="duration">04:20</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">HOT Mantis shrimp DESTROYS clam in one punch</h3>
+                        <div class="video-meta">
+                            <span>OceanicBrawlers</span>
+                            <span>850K views • 1 week ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/crustacean?random=3" alt="Shrimp Thumbnail">
+                    <span class="duration">15:00</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Amateur Ghost Shrimp devours entire algae wafer (No Hands)</h3>
+                        <div class="video-meta">
+                            <span>FreshwaterFreaks</span>
+                            <span>420K views • 3 weeks ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/prawn?random=4" alt="Shrimp Thumbnail">
+                    <span class="duration">08:15</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Sensual exoskeleton molting [4K 60FPS]</h3>
+                        <div class="video-meta">
+                            <span>NatureDocs Uncut</span>
+                            <span>2.5M views • 1 month ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/aquarium,shrimp?random=5" alt="Shrimp Thumbnail">
+                    <span class="duration">02:30</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Three Amano shrimp tag-team a single piece of driftwood</h3>
+                        <div class="video-meta">
+                            <span>TankJanitors</span>
+                            <span>112K views • 5 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/shrimp?random=6" alt="Shrimp Thumbnail">
+                    <span class="duration">11:11</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Red Cherry Shrimp EXPLORES new deep substrate</h3>
+                        <div class="video-meta">
+                            <span>BottomFeeders</span>
+                            <span>60K views • 12 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/lobster?random=7" alt="Lobster Thumbnail">
+                    <span class="duration">18:05</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Two massive lobsters fight over one tiny, tight cave</h3>
+                        <div class="video-meta">
+                            <span><span class="verified">ClawHub</span></span>
+                            <span>900K views • 3 days ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/crawfish?random=8" alt="Crawfish Thumbnail">
+                    <span class="duration">06:45</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Crawfish gets down and dirty in the mud (POV)</h3>
+                        <div class="video-meta">
+                            <span>SwampThings</span>
+                            <span>210K views • 2 weeks ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/macro,shrimp?random=9" alt="Shrimp Thumbnail">
+                    <span class="duration">09:12</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Berried female shows off her MASSIVE clutch to the camera</h3>
+                        <div class="video-meta">
+                            <span>BreederHub</span>
+                            <span>3.1M views • 1 month ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/crab?random=10" alt="Crab Thumbnail">
+                    <span class="duration">14:20</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Step-crab needs help shedding her tight carapace</h3>
+                        <div class="video-meta">
+                            <span>CrustaceanCasting</span>
+                            <span>88K views • 6 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/ocean,shrimp?random=11" alt="Shrimp Thumbnail">
+                    <span class="duration">07:55</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Shy Bamboo Shrimp finally opens her fans wide</h3>
+                        <div class="video-meta">
+                            <span><span class="verified">FilterFeederFanatics</span></span>
+                            <span>1.5M views • 5 days ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/reef,shrimp?random=12" alt="Shrimp Thumbnail">
+                    <span class="duration">05:30</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Group of Peppermints clean a dirty Tang [Group Action]</h3>
+                        <div class="video-meta">
+                            <span>ReefCleaners</span>
+                            <span>500K views • 4 weeks ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/shrimp,aquarium?random=13" alt="Shrimp Thumbnail">
+                    <span class="duration">12:10</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Blue Velvet shrimp goes incredibly deep into the java moss</h3>
+                        <div class="video-meta">
+                            <span>MossHub</span>
+                            <span>75K views • 1 day ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/crab,beach?random=14" alt="Crab Thumbnail">
+                    <span class="duration">03:45</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Vampire crab feeding frenzy UNCENSORED</h3>
+                        <div class="video-meta">
+                            <span>PaludariumHub</span>
+                            <span>320K views • 2 months ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/shrimp,water?random=15" alt="Shrimp Thumbnail">
+                    <span class="duration">01:50</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Thick snapping shrimp caught lacking in the open</h3>
+                        <div class="video-meta">
+                            <span>ExposedCrustaceans</span>
+                            <span>99K views • 8 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/barnacle?random=16" alt="Barnacle Thumbnail">
+                    <span class="duration">45:00</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Just 45 minutes of heavy barnacle filter feeding</h3>
+                        <div class="video-meta">
+                            <span>StaticOcean</span>
+                            <span>10K views • 1 year ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/hermit,crab?random=17" alt="Crab Thumbnail">
+                    <span class="duration">04:12</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">PUBLIC NUDITY: Hermit caught completely shell-less switching homes</h3>
+                        <div class="video-meta">
+                            <span>NakedShells</span>
+                            <span>1.8M views • 2 days ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/eel,shrimp?random=18" alt="Shrimp Thumbnail">
+                    <span class="duration">19:45</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Deep oral cleaning - Skunk cleaner shrimp services a massive Moray Eel</h3>
+                        <div class="video-meta">
+                            <span><span class="verified">SymbioticHub</span></span>
+                            <span>4.2M views • 1 week ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/pistol,shrimp?random=19" alt="Shrimp Thumbnail">
+                    <span class="duration">01:15</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">LOUD! Pistol shrimp blasts unsuspecting goby</h3>
+                        <div class="video-meta">
+                            <span>ClawPoppers</span>
+                            <span>890K views • 3 weeks ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/krill?random=20" alt="Krill Thumbnail">
+                    <span class="duration">55:00</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Massive Krill Orgy - Millions gather for midnight spawn</h3>
+                        <div class="video-meta">
+                            <span>PelagicVoyeur</span>
+                            <span>12M views • 1 month ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/yeti,crab?random=21" alt="Crab Thumbnail">
+                    <span class="duration">08:30</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Hairy and deep: Yeti crab explores extreme hydrothermal vents</h3>
+                        <div class="video-meta">
+                            <span>DeepSeaDaddy</span>
+                            <span>450K views • 5 days ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/fiddler,crab?random=22" alt="Crab Thumbnail">
+                    <span class="duration">06:09</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Huge right claw action - Fiddler shows off for the ladies</h3>
+                        <div class="video-meta">
+                            <span>MudFlatStuds</span>
+                            <span>275K views • 12 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/coconut,crab?random=23" alt="Crab Thumbnail">
+                    <span class="duration">14:50</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Absolute unit of a Coconut Crab tears open a tough nut</h3>
+                        <div class="video-meta">
+                            <span><span class="verified">IslandGiants</span></span>
+                            <span>3.1M views • 2 months ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-card">
+                <div class="thumbnail">
+                    <img src="https://loremflickr.com/600/400/brine,shrimp?random=24" alt="Shrimp Thumbnail">
+                    <span class="duration">02:45</span>
+                </div>
+                <div class="video-info">
+                    <div class="video-text">
+                        <h3 class="video-title">Sea Monkeys hatching and immediately getting to work</h3>
+                        <div class="video-meta">
+                            <span>PetShopPeeping</span>
+                            <span>95K views • 4 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
